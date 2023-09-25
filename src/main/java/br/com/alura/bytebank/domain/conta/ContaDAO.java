@@ -35,19 +35,23 @@ public class ContaDAO {
             preparedStatement.setString(5, dadosDaConta.dadosCliente().email());
 
             preparedStatement.execute();
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public Set<Conta> listar() {
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
         Set<Conta> contas = new HashSet<>();
 
         String sql = "SELECT * FROM conta";
 
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            preparedStatement = connection.prepareStatement(sql);
+            resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 Integer numero = resultSet.getInt(1);
@@ -60,6 +64,11 @@ public class ContaDAO {
                 Cliente cliente = new Cliente(dadosCadastroCliente);
                 contas.add(new Conta(numero, cliente));
             }
+
+            preparedStatement.close();
+            resultSet.close();
+            connection.close();
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
