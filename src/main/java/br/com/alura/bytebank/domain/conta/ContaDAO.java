@@ -76,37 +76,55 @@ public class ContaDAO {
     }
 
     public Conta listarPorNumero(Integer numero) {
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
-        Conta conta = null;
-
         String sql = "SELECT * FROM conta WHERE numero = ?";
 
-         try {
-             preparedStatement = connection.prepareStatement(sql);
-             resultSet = preparedStatement.executeQuery();
+        PreparedStatement ps;
+        ResultSet resultSet;
+        Conta conta = null;
+        try {
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, numero);
+            resultSet = ps.executeQuery();
 
-             preparedStatement.setInt(1, numero);
+            while (resultSet.next()) {
+                Integer numeroRecuperado = resultSet.getInt(1);
+                BigDecimal saldo = resultSet.getBigDecimal(2);
+                String nome = resultSet.getString(3);
+                String cpf = resultSet.getString(4);
+                String email = resultSet.getString(5);
 
-             while (resultSet.next()) {
-                 Integer numeroRecuperado = resultSet.getInt(1);
-                 BigDecimal saldo = resultSet.getBigDecimal(2);
-                 String nome = resultSet.getString(3);
-                 String cpf = resultSet.getString(4);
-                 String email = resultSet.getString(5);
+                DadosCadastroCliente dadosCadastroCliente =
+                        new DadosCadastroCliente(nome, cpf, email);
+                Cliente cliente = new Cliente(dadosCadastroCliente);
 
-                 DadosCadastroCliente dadosCadastroCliente = new DadosCadastroCliente(nome, cpf, email);
-                 Cliente cliente = new Cliente(dadosCadastroCliente);
-                 conta = new Conta(numeroRecuperado, saldo, cliente);
+                conta = new Conta(numeroRecuperado, saldo, cliente);
+            }
+            resultSet.close();
+            ps.close();
+            connection.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return conta;
+    }
 
-                 preparedStatement.close();
-                 resultSet.close();
-                 connection.close();
-             }
-         } catch (SQLException e) {
-             throw new RuntimeException(e);
-         }
+    public void alterar(Integer numero, BigDecimal valor) {
+        PreparedStatement preparedStatement;
 
-         return conta;
+        String sql = "UPDATE conta SET saldo = ? WHERE numero = ?";
+
+        try {
+            preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setBigDecimal(1, valor);
+            preparedStatement.setInt(2, numero);
+
+            preparedStatement.execute();
+            preparedStatement.close();
+            connection.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
