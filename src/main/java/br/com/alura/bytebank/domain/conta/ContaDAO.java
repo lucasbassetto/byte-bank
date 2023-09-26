@@ -134,4 +134,22 @@ public class ContaDAO {
             throw new RuntimeException(e);
         }
     }
+
+    public void deletar(Integer numeroDaConta) {
+        PreparedStatement preparedStatement;
+
+        String sql = "DELETE FROTM conta WHERE numero =?";
+
+        try {
+            preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setInt(1, numeroDaConta);
+
+            preparedStatement.execute();
+            preparedStatement.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

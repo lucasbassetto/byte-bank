@@ -16,8 +16,6 @@ public class ContaService {
         this.connection = new ConnectionFactory();
     }
 
-    private Set<Conta> contas = new HashSet<>();
-
     public Set<Conta> listarContasAbertas() {
         Connection conn = connection.recuperarConexao();
         return new ContaDAO(conn).listar();
@@ -74,7 +72,9 @@ public class ContaService {
             throw new RegraDeNegocioException("Conta não pode ser encerrada pois ainda possui saldo!");
         }
 
-        contas.remove(conta);
+        Connection conn = connection.recuperarConexao();
+
+        new ContaDAO(conn).deletar(numeroDaConta);
     }
 
     private Conta buscarContaPorNumero(Integer numero) {
